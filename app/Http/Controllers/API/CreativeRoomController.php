@@ -119,7 +119,7 @@ class CreativeRoomController extends Controller
                 'thumbnail' => 'image'
             ],
             [
-                'title.request' => 'Title is required',
+                'title.required' => 'Title is required',
                 'title.max' => 'Title max length is 255 character',
                 'desc.required' => 'Describe is required',
                 'desc.max' => 'Describe max length is 4000 character',
@@ -132,7 +132,7 @@ class CreativeRoomController extends Controller
                     'status' => 'Bad request',
                     'message' => 'Some field are invalid',
                     'data' => $validator->errors()
-                ]);
+                ], 400);
         }
 
         $input = [
@@ -168,5 +168,66 @@ class CreativeRoomController extends Controller
                 'data' => $creativeRoom
             ]);
     }
-    
+
+    function roomInfo(Request $request) {
+        $room_id = $request->room_id;
+        $room = $this->repository->findOrFail($room_id);
+        return response()->json([
+                'status' => 'success',
+                'message' => 'Get room info',
+                'data' => $room
+            ], 200);
+    }
+
+    function updateRoom(Request $request) {
+        $validator = Validator::make($request->all(),
+            [
+                'title' => 'required|max:255',
+                'desc' => 'required|max:4000'
+            ],
+            [
+                'title.required' => 'Title is required',
+                'title.max' => 'Title max length is 255',
+                'desc.required' => 'Describe is required',
+                'desc.max' => 'Describe max length is 4000'
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                    'status' => 'bad request',
+                    'message' => 'Some field are not valid',
+                    'data' => $validator->errors()
+                ], 400);
+        }
+
+        $room = $this->repository->findOrFail($request->room_id);
+
+        //check user permission
+        if (Auth::user()->cant('update', $room)) {
+            return response()->json([
+                'status'   => 'error',
+                'message'  => 'permission denied',
+                'data'     => [],
+            ], 403);
+        }
+
+        $input = $request->only('title', 'desc');
+
+        //Save thumbnail
+        if ($request->hasFile('thumbnail')) {
+            $input['thumbnail'] = $request->thumbnail->storePublicly('creative_rooms/'.Auth::id(), 's3');
+        }
+
+        $room->fill($input);
+        $room->save();
+
+        return response()->json([
+                'status' => 'success',
+                'message' => 'Edit success',
+                'data' => $room
+            ], 200);
+
+    }
+
 }

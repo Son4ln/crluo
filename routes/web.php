@@ -274,4 +274,3 @@ Route::get('/updatestypemovie', 'ProjectsController@updateProjectMovieStype');
 Route::get('/updateportfoliostypemovie', 'ProjectsController@updatePortfolioStyles');
 
 Route::get('/updateportfoliotypemovie', 'ProjectsController@updatePortfolioTypes');
-

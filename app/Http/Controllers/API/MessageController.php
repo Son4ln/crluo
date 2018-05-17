@@ -65,7 +65,7 @@ class MessageController extends Controller
         if($validator->fails()){
             return response()->json([
             	'status' => 'bad request',
-            	'message' => 'some field are not valid',
+            	'message' => 'Some field are not valid',
             	'data' => $validator->errors()
             ], 400);
         }

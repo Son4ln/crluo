@@ -92,9 +92,7 @@ class UserController extends Controller
         $input = $request->only('name', 'email', 'password');
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
-
-        // $success['token'] = $user->createToken('MyApp')->accessToken;
-        // $success['name'] = $user->name;
+        
         return response()->json([
         	'status' => 'success',
         	'message' => 'register success',

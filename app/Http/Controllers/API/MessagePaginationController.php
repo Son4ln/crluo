@@ -36,19 +36,16 @@ class MessagePaginationController extends Controller
             ->whereNotNull('creativeroom_messages.creativeroom_id')
             ->latest('creativeroom_messages.created_at')->take($pages)->get()->reverse();
 
-        //convert messages to array
-        $messages_arr = [];
-        foreach ($messages as $item) {
-            if ($item->user_photo) {
-                $item->user_photo = Storage::disk('s3')->url($item->user_photo);
+        for($index = 0; $index < count($messages); $index++) {
+            if ($messages[$index]->user_photo) {
+                $messages[$index]->user_photo = Storage::disk('s3')->url($messages[$index]->user_photo);
             }
-            array_push($messages_arr, $item);
         }
 
         return response()->json([
         	'status' => 'success',
         	'message' => 'get message success',
-        	'data' => $messages_arr
+        	'data' => $messages
         ], 200);
     }
 }
